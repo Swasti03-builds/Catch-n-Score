@@ -1,4 +1,5 @@
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -6,25 +7,19 @@ import java.util.List;
 
 class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
 
-    // ------------------- PANEL SIZE -------------------
-    final int width;
+    final int width;            //panelsize
     final int height;
 
-    // ------------------- GAME LOOP --------------------
     private final javax.swing.Timer timer;
     private final int fps = 60;
 
-    // ------------------- GAME STATE -------------------
     GameState state = GameState.MENU;
 
-    // ------------------- OBJECTS ----------------------
     private final Basket basket;
     final List<FallingItem> items = Collections.synchronizedList(new ArrayList<>());
 
-    // ------------------- MODE LOGIC -------------------
     private GameMode mode;
 
-    // ------------------- VARIABLES --------------------
     long lastSpawnTime = 0;
     int spawnIntervalMs = 1500;
 
@@ -53,7 +48,6 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
         timer.start();
     }
 
-    // ------------------- GAME LOOP -------------------
     @Override
     public void actionPerformed(ActionEvent e) {
         if (state == GameState.RUNNING) {
@@ -79,7 +73,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
                 FallingItem f = it.next();
                 f.update();
 
-                // caught?
+                // if caught
                 if (f.getBounds().intersects(basket.getBounds())) {
                     boolean levelComplete = mode.onCatch(f, this);
 
@@ -87,12 +81,13 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
                     if (state == GameState.GAME_OVER) return;
                     if (levelComplete) {
                         state = GameState.LEVEL_COMPLETE;
+                        SoundPlayer.play("sounds/level_up.wav");
                         timer.stop();
                     }
                     continue;
                 }
 
-                // missed?
+                // if missed
                 if (f.y > height) {
                     if (mode instanceof FruitMode) {
                     mode.onMiss(f, this);
@@ -103,7 +98,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
         }
     }
 
-    // ------------------- RENDERING -------------------
+    // painting everything
     @Override
     protected void paintComponent(Graphics g0) {
         super.paintComponent(g0);
@@ -149,29 +144,33 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
 
         String big = null;
         java.util.List<String> lines = new ArrayList<>();
-
+// using switch case for state
         switch (state) {
-            case MENU -> {
-                big = "CATCH N SCORE";
-                lines.add("Press ENTER to Start");
-                lines.add("Press M to toggle mode");
-                lines.add("Use LEFT/RIGHT or Mouse to move");
-            }
-            case PAUSED -> {
-                big = "PAUSED";
-                lines.add("Press P to resume");
-            }
-            case GAME_OVER -> {
-                big = "GAME OVER";
-                lines.add("Final Score: " + score);
-                lines.add("Press R to restart");
-            }
-            case LEVEL_COMPLETE -> {
-                big = "LEVEL " + level + " COMPLETE!";
-                lines.add("Score: " + score);
-                lines.add("Press ENTER for next level");
-            }
-        }
+    case MENU:
+        big = "CATCH N SCORE";
+        lines.add("Press ENTER to Start");
+        lines.add("Press M to toggle mode");
+        lines.add("Use LEFT/RIGHT or Mouse to move");
+        break;
+
+    case PAUSED:
+        big = "PAUSED";
+        lines.add("Press P to resume");
+        break;
+
+    case GAME_OVER:
+        big = "GAME_OVER";
+        lines.add("Final Score: " + score);
+        lines.add("Press R to restart");
+        break;
+
+    case LEVEL_COMPLETE:
+        big = "LEVEL " + level + " COMPLETE!";
+        lines.add("Score: " + score);
+        lines.add("Press ENTER for next level");
+        break;
+}
+
 
         // draw box
         g.setColor(new Color(0, 0, 0, 160));
@@ -193,7 +192,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
         }
     }
 
-    // ------------------- INPUT -------------------
+    // all keys functions
     @Override
     public void keyPressed(KeyEvent e) {
 
@@ -244,8 +243,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
         basket.centerAt(e.getX());
     }
 
-    // ------------------- GAME STATE MGMT -------------------
-
+// starting game 
     private void startGame() {
 
         score = 0;
@@ -261,34 +259,36 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
         state = GameState.RUNNING;
         timer.start();
     }
-
+// defines next level
     private void nextLevel() {
 
         level++;
         items.clear();
         lastSpawnTime = 0;
-
-        // reset mode instance for next level
         if (mode instanceof FruitMode) mode = new FruitMode(level);
         else mode = new LetterMode(level);
 
         state = GameState.RUNNING;
         timer.start();
     }
-
+// func to switch modes btwn letters and fruits
     private void toggleMode() {
-        if (mode instanceof FruitMode) {
-            mode = new LetterMode(level);
-        } else {
-            mode = new FruitMode(level);
-        }
-    }
 
+    items.clear();
+    level = 1;
+    lastSpawnTime = 0;
+
+    if (mode instanceof FruitMode) mode = new LetterMode(level);
+    else mode = new FruitMode(level);
+}
+
+// function when u lose a life 
     public void loseLife() {
     lives--;
     if (lives <= 0) {
         lives = 0;
         state = GameState.GAME_OVER;
+        SoundPlayer.play("sounds/game_over.wav");
         timer.stop();
     }
     }

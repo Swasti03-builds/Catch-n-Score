@@ -22,6 +22,7 @@ public class FruitMode implements GameMode {
 
     @Override
     public boolean onCatch(FallingItem f, GamePanel panel) {
+        SoundPlayer.play("sounds/catch.wav");
         if (panel.state == GameState.GAME_OVER) return false;
         panel.score += f.pointValue;
         fruitsCaught++;
@@ -30,6 +31,7 @@ public class FruitMode implements GameMode {
 
     @Override
     public void onMiss(FallingItem f, GamePanel panel) {
+        SoundPlayer.play("sounds/miss.wav");
         panel.loseLife();
     }
 

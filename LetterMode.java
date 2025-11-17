@@ -1,8 +1,9 @@
-import java.util.List;
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
-import java.awt.Color;
 import java.util.Collections;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.List; 
+
+import java.awt.Color;
 import java.awt.Graphics2D;
 
 
@@ -12,16 +13,23 @@ public class LetterMode implements GameMode {
     private int currentWordIndex = 0;
     private String targetWord = "";
     private int charIndex = 0;
+    private boolean levelComplete = false;
+    private int displayWordIndex = 0;
+
 
     public LetterMode(int level) {
 
-        int numWords = 3 + (level - 1) * 2; // Level 1: 3 words, Level 2: 5 words, etc.
+        int numWords = 1 + (level - 1) * 2;
 
         List<String> pool = WordLoader.loadWords("words.txt");
         Collections.shuffle(pool);
 
         for (int i = 0; i < Math.min(numWords, pool.size()); i++) {
             words.add(pool.get(i).toUpperCase());
+        }
+
+        if (words.isEmpty()) {
+            words.add("JAVA");
         }
 
         targetWord = words.get(0);
@@ -31,10 +39,12 @@ public class LetterMode implements GameMode {
     @Override
     public void spawnItem(List<FallingItem> items, int width, int level) {
 
+        // Stop spawning once level is done (same as FruitMode behavior)
+        if (levelComplete) return;
+
         int x = ThreadLocalRandom.current().nextInt(20, width - 60);
         int speed = 3 + level;
 
-        // 40% chance correct letter
         boolean dropCorrect = ThreadLocalRandom.current().nextInt(100) < 40;
 
         char letter;
@@ -49,32 +59,38 @@ public class LetterMode implements GameMode {
     }
 
     private char randomLetter() {
-        return (char)('A' + ThreadLocalRandom.current().nextInt(26));
+        return (char) ('A' + ThreadLocalRandom.current().nextInt(26));
     }
 
     @Override
     public boolean onCatch(FallingItem f, GamePanel panel) {
 
+        if (!(f instanceof LetterItem)) return false;
         LetterItem item = (LetterItem) f;
-        char caught = item.letter;
 
-        // ✅ CORRECT LETTER
+        char caught = item.getLetter();
+
+        // ---- CORRECT LETTER ----
         if (charIndex < targetWord.length() && caught == targetWord.charAt(charIndex)) {
 
+            SoundPlayer.play("sounds/catch.wav");
+
             panel.score += 10;
-            item.setCaughtColor();     // ✅ optional color change
+            item.setCaughtColor();
             charIndex++;
 
-            // ✅ WORD COMPLETED
+            // Word completed
             if (charIndex >= targetWord.length()) {
-
+                displayWordIndex++;
                 currentWordIndex++;
 
+                // All words of this mode completed → LEVEL COMPLETE
                 if (currentWordIndex >= words.size()) {
-                    return true;       // ✅ level complete
+                    levelComplete = true;
+                    return true;
                 }
 
-                // ✅ move to next word
+                // Otherwise move to next
                 targetWord = words.get(currentWordIndex);
                 charIndex = 0;
             }
@@ -82,28 +98,31 @@ public class LetterMode implements GameMode {
             return false;
         }
 
-        // ❌ WRONG LETTER
+        // ---- WRONG LETTER ----
+        SoundPlayer.play("sounds/miss.wav");
         panel.loseLife();
         return false;
     }
 
     @Override
     public void onMiss(FallingItem f, GamePanel panel) {
-        // letters falling and missing DO NOT reduce lives
+        // no penalty for missed letters
     }
 
     @Override
     public void drawHUD(Graphics2D g, GamePanel panel) {
 
         g.setColor(Color.WHITE);
-        g.drawString("Word " + (currentWordIndex + 1) + "/" + words.size(), 
-                      panel.width - 220, 30);
+        g.drawString("Words: " + displayWordIndex + "/" + words.size(),
+                     panel.width - 260, 30);
 
-        g.drawString("Target: " + targetWord, 
-                      panel.width - 220, 55);
+        g.drawString("Target: " + targetWord,
+                     panel.width - 260, 55);
 
-        g.setColor(Color.YELLOW);
-        g.drawString("Next Letter: " + targetWord.charAt(charIndex), 
-                      panel.width - 220, 80);
+        if (charIndex < targetWord.length()) {
+            g.setColor(Color.YELLOW);
+            g.drawString("Next: " + targetWord.charAt(charIndex),
+                         panel.width - 260, 80);
+        }
     }
 }

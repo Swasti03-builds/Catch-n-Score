@@ -26,14 +26,10 @@ class FruitItem extends FallingItem {
         }
     }
     @Override
-    public void onCatch() {
-        // Optional: add effects or sound for fruit caught
-    }
+    public void onCatch() {}
 
     @Override
-    public void onMiss() {
-        // Optional: add penalty or animation for missed fruit
-    }
+    public void onMiss() {}
 
     private void drawApple(Graphics2D g) {
         g.setColor(new Color(220, 40, 40));
