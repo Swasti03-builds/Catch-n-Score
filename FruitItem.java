@@ -1,6 +1,6 @@
 import java.awt.*;
 import java.awt.GradientPaint;
-import java.util.concurrent.ThreadLocalRandom;
+//import java.util.concurrent.ThreadLocalRandom;
 
 class FruitItem extends FallingItem {
     private final FruitType type;
@@ -17,7 +17,6 @@ class FruitItem extends FallingItem {
 
     @Override
     public void draw(Graphics2D g) {
-        // Draw a simple fruit shape depending on type
         switch (type) {
             case APPLE -> drawApple(g);
             case MELON -> drawMelon(g);
@@ -56,29 +55,26 @@ class FruitItem extends FallingItem {
 
     private void drawGrapes(Graphics2D g) {
 
-    int r = (int)(w / 2.5);  // grape size
-    int step = r - 4; // overlap amount for compact cluster
+    int r = (int)(w / 2.5);  
+    int step = r - 4; 
 
-    // Define how many grapes in each row (bottom → top)
     int[] rows = {3, 2, 1};
     int startY = y;
 
-    // Draw rows
+    // rows banana
     for (int row = 0; row < rows.length; row++) {
         int count = rows[row];
-        // Center grapes horizontally
         int startX = x + (w - (count * step + (r - step))) / 2;
 
         for (int i = 0; i < count; i++) {
             int gx = startX + i * step;
             int gy = startY + row * step;
 
-            // Slight random variation in purple shade
             Color base = new Color(120 + (int)(Math.random() * 30), 30, 140);
             g.setColor(base);
             g.fillOval(gx, gy, r, r);
 
-            // Shading (darker gradient for depth)
+            // Shade krna 
             GradientPaint shade = new GradientPaint(
                 gx, gy, new Color(150, 50, 180),
                 gx + r, gy + r, new Color(70, 20, 90)
@@ -86,17 +82,17 @@ class FruitItem extends FallingItem {
             g.setPaint(shade);
             g.fillOval(gx, gy, r, r);
 
-            // Small glossy highlight (top-left)
+            // chota highlight oval
             g.setColor(new Color(255, 255, 255, 80));
             g.fillOval(gx + r/4, gy + r/5, r/4, r/5);
         }
     }
 
-    // Draw stem at top center
+    // stem banana 
     g.setColor(new Color(90, 40, 20));
     g.fillRect(x + w / 2 - 2, y - 8, 4, 8);
 
-    // Optional tiny green leaf near stem
+    // green leaf banana
     g.setColor(new Color(60, 160, 60));
     int[] lx = {x + w / 2 + 3, x + w / 2 + 13, x + w / 2 + 5};
     int[] ly = {y - 5, y + 5, y + 8};

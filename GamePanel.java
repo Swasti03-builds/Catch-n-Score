@@ -1,5 +1,4 @@
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -41,7 +40,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
 
         basket = new Basket(width / 2 - 50, height - 80, 100, 40, width);
 
-        // default mode = fruits
+        // default mode fruits hai
         mode = new FruitMode(level);
 
         timer = new javax.swing.Timer(1000 / fps, this);
@@ -65,7 +64,6 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
             lastSpawnTime = now;
         }
 
-        // move items
         synchronized (items) {
             Iterator<FallingItem> it = items.iterator();
 
@@ -73,7 +71,6 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
                 FallingItem f = it.next();
                 f.update();
 
-                // if caught
                 if (f.getBounds().intersects(basket.getBounds())) {
                     boolean levelComplete = mode.onCatch(f, this);
 
@@ -134,7 +131,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
 
         g.drawString("Mode: " + (mode instanceof FruitMode ? "FRUITS" : "LETTERS"), 20, 105);
 
-        // mode-specific HUD
+        // mode-specific call kiya hai
         mode.drawHUD(g, this);
     }
 
@@ -144,7 +141,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
 
         String big = null;
         java.util.List<String> lines = new ArrayList<>();
-// using switch case for state
+
         switch (state) {
     case MENU:
         big = "CATCH N SCORE";
@@ -170,9 +167,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
         lines.add("Press ENTER for next level");
         break;
 }
-
-
-        // draw box
+        //box draw kiya
         g.setColor(new Color(0, 0, 0, 160));
         g.fillRect(width / 4, height / 4, width / 2, height / 2);
 
@@ -192,7 +187,6 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
         }
     }
 
-    // all keys functions
     @Override
     public void keyPressed(KeyEvent e) {
 
@@ -252,16 +246,14 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
 
         level = 1;
 
-        // choose correct mode class
         if (mode instanceof FruitMode) mode = new FruitMode(level);
         else mode = new LetterMode(level);
 
         state = GameState.RUNNING;
         timer.start();
     }
-// defines next level
+// nect level jaana
     private void nextLevel() {
-
         level++;
         items.clear();
         lastSpawnTime = 0;
@@ -271,6 +263,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMoti
         state = GameState.RUNNING;
         timer.start();
     }
+
 // func to switch modes btwn letters and fruits
     private void toggleMode() {
 

@@ -29,14 +29,11 @@ class Basket {
     }
 
     public void draw(Graphics2D g) {
-        update(); // update basket position continuously
-        // draw basket body
+        update(); 
         g.setColor(new Color(200, 120, 40));
         g.fillRoundRect(x, y, w, h, 16, 14);
-        // rim
         g.setColor(new Color(120, 70, 20));
         g.fillRect(x, y-6, w, 8);
-        // highlight
         g.setColor(new Color(255, 255, 255, 60));
         g.fillRoundRect(x+8, y+8, w-16, h-12, 12, 12);
     }

@@ -39,7 +39,6 @@ public class LetterMode implements GameMode {
     @Override
     public void spawnItem(List<FallingItem> items, int width, int level) {
 
-        // Stop spawning once level is done (same as FruitMode behavior)
         if (levelComplete) return;
 
         int x = ThreadLocalRandom.current().nextInt(20, width - 60);
@@ -70,7 +69,7 @@ public class LetterMode implements GameMode {
 
         char caught = item.getLetter();
 
-        // ---- CORRECT LETTER ----
+        // if correct
         if (charIndex < targetWord.length() && caught == targetWord.charAt(charIndex)) {
 
             SoundPlayer.play("sounds/catch.wav");
@@ -84,13 +83,11 @@ public class LetterMode implements GameMode {
                 displayWordIndex++;
                 currentWordIndex++;
 
-                // All words of this mode completed → LEVEL COMPLETE
                 if (currentWordIndex >= words.size()) {
                     levelComplete = true;
                     return true;
                 }
 
-                // Otherwise move to next
                 targetWord = words.get(currentWordIndex);
                 charIndex = 0;
             }
@@ -98,7 +95,7 @@ public class LetterMode implements GameMode {
             return false;
         }
 
-        // ---- WRONG LETTER ----
+        // if wrong
         SoundPlayer.play("sounds/miss.wav");
         panel.loseLife();
         return false;
@@ -106,7 +103,7 @@ public class LetterMode implements GameMode {
 
     @Override
     public void onMiss(FallingItem f, GamePanel panel) {
-        // no penalty for missed letters
+        // missed letter no effect
     }
 
     @Override

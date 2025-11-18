@@ -3,7 +3,7 @@ import java.awt.*;
 public class LetterItem extends FallingItem {
 
     private char letter;
-    private boolean caught = false;   // ✅ track caught state
+    private boolean caught = false;  
 
     public LetterItem(int x, int y, int w, int h, int dy, char letter) {
         super(x, y, w, h, dy);
@@ -11,7 +11,6 @@ public class LetterItem extends FallingItem {
         this.pointValue = 10;
     }
 
-    // ✅ Called when player catches this letter
     public void setCaughtColor() {
         caught = true;
     }
@@ -24,11 +23,10 @@ public class LetterItem extends FallingItem {
     @Override
     public void draw(Graphics2D g) {
 
-        // ✅ Color changes if caught
         if (caught) {
-            g.setColor(new Color(0, 200, 0));   // green highlight
+            g.setColor(new Color(0, 200, 0));   
         } else {
-            g.setColor(new Color(70, 130, 180)); // normal blue
+            g.setColor(new Color(70, 130, 180)); 
         }
 
         g.fillOval(x, y, w, h);
@@ -41,17 +39,15 @@ public class LetterItem extends FallingItem {
         int sw = fm.stringWidth(s);
         int sh = fm.getAscent();
 
-        // ✅ Center letter inside circle
+        // Center letter circle ka
         g.drawString(s, x + (w - sw) / 2, y + (h + sh) / 2 - 4);
     }
 
     @Override
     public void onCatch() {
-        setCaughtColor();   // ✅ change color when caught
+        setCaughtColor();   // change color agar caught
     }
 
     @Override
-    public void onMiss() {
-        // Optional: animations or penalty
-    }
+    public void onMiss() {}
 }
